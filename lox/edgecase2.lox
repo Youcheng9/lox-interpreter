@@ -1,0 +1,6 @@
+print 2 + 9 == 11; //expect True
+print 21 / 3 == 7; //expect True
+print 0.1 + 0.2 == 0.3; // expect True
+
+
+print 90 / 2 == 20; //expect False
