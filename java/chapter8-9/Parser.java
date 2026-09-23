@@ -42,6 +42,7 @@ class Parser {
   private boolean startsStatement() {
     switch (peek().type) {
       case CLASS:
+      case BREAK:
       case FUN:
       case VAR:
       case FOR:
@@ -140,6 +141,7 @@ class Parser {
 //> Control Flow match-if
     if (match(IF)) return ifStatement();
 //< Control Flow match-if
+    if (match(BREAK)) return breakStatement();
     if (match(PRINT)) return printStatement();
 //> Functions match-return
     if (match(RETURN)) return returnStatement();
@@ -271,6 +273,11 @@ class Parser {
     return new Stmt.While(condition, body);
   }
 //< Control Flow while-statement
+  private Stmt breakStatement() {
+    Token keyword = previous();
+    consume(SEMICOLON, "Expect ';' after 'break'.");
+    return new Stmt.Break(keyword);
+  }
 //> Statements and State parse-expression-statement
   private Stmt expressionStatement() {
     Expr expr = expression();

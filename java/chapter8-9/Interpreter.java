@@ -20,6 +20,11 @@ class Interpreter implements Expr.Visitor<Object> {
 //> Statements and State interpreter
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
+  private static class BreakException extends RuntimeException {
+    BreakException() {
+      super(null, null, false, false);
+    }
+  }
 //< Statements and State interpreter
 /* Statements and State environment-field < Functions global-environment
   private Environment environment = new Environment();
@@ -110,6 +115,10 @@ class Interpreter implements Expr.Visitor<Object>,
     return null;
   }
 //< Statements and State visit-block
+  @Override
+  public Void visitBreakStmt(Stmt.Break stmt) {
+    throw new BreakException();
+  }
 //> Classes interpreter-visit-class
   @Override
   public Void visitClassStmt(Stmt.Class stmt) {
@@ -238,7 +247,11 @@ class Interpreter implements Expr.Visitor<Object>,
   @Override
   public Void visitWhileStmt(Stmt.While stmt) {
     while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body);
+      try {
+        execute(stmt.body);
+      } catch (BreakException breakException) {
+        break;
+      }
     }
     return null;
   }
