@@ -11,17 +11,32 @@ Practice of language and systems exercises from *Crafting Interpreters*.
 
 ## Quick start
 
-Compile and run the C example:
+### Lox files
+
+Compile the Lox interpreter:
+
+```powershell
+javac -d .\build\jlox .\external\craftinginterpreters\java\com\craftinginterpreters\lox\*.java
+```
+
+Run a Lox file:
+
+```powershell
+java -cp .\build\jlox com.craftinginterpreters.lox.Lox .\lox\example.lox
+```
+
+Recompile after changing any Java source files.
+
+### C example
 
 ```powershell
 gcc .\c\linkedList.c -o .\build\linkedList.exe
 .\build\linkedList.exe
 ```
 
-Compile and run the Java example:
+### Java hello-world example
 
 ```powershell
 javac .\java\helloworld.java
 java -cp .\java helloworld
 ```
-
