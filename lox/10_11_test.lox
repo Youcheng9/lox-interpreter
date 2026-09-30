@@ -1,0 +1,18 @@
+fun thrice(fn) {
+  for (var i = 1; i <= 3; i = i + 1) {
+    fn(i);
+  }
+}
+
+thrice(fun (a) {
+  print a;
+});
+
+fun () {};          // expects no error
+
+var f = fun (x) { return x * 2; };
+print f(21);        // 42
+print f;            // <fn>
+
+fun named() { print "named still works"; }
+named();
