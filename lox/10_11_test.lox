@@ -16,3 +16,9 @@ print f;            // <fn>
 
 fun named() { print "named still works"; }
 named();
+
+// test unused variable
+fun test() {
+  var unused = 1;
+  print 2;
+}
