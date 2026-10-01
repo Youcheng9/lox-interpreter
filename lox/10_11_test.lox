@@ -1,3 +1,5 @@
+print "This should not appear if the resolver works";
+
 fun thrice(fn) {
   for (var i = 1; i <= 3; i = i + 1) {
     fn(i);
@@ -16,6 +18,7 @@ print f;            // <fn>
 
 fun named() { print "named still works"; }
 named();
+
 
 // test unused variable
 fun test() {

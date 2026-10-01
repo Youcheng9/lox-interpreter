@@ -13,12 +13,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   private static class Variable {
     final Token name;
+    final int slot;
     final boolean reportUnused;
     boolean defined;
     boolean used;
 
-    Variable(Token name, boolean reportUnused) {
+    Variable(Token name, int slot, boolean reportUnused) {
       this.name = name;
+      this.slot = slot;
       this.reportUnused = reportUnused;
     }
   }
@@ -116,14 +118,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     if (stmt.superclass != null) {
       beginScope();
-      scopes.peek().put("super", new Variable(null, false));
+      scopes.peek().put("super", new Variable(null, scopes.peek().size(), false));
     }
 //< Inheritance begin-super-scope
 //> resolve-methods
 
 //> resolver-begin-this-scope
     beginScope();
-    scopes.peek().put("this", new Variable(null, false));
+    scopes.peek().put("this", new Variable(null, scopes.peek().size(), false));
 
 //< resolver-begin-this-scope
     for (Stmt.Function method : stmt.methods) {
@@ -434,7 +436,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
 //< duplicate-variable
-    scope.put(name.lexeme, new Variable(name, true));
+    scope.put(name.lexeme, new Variable(name, scope.size(), true));
   }
 //< declare
 //> define
@@ -448,7 +450,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     for (int i = scopes.size() - 1; i >= 0; i--) {
       if (scopes.get(i).containsKey(name.lexeme)) {
         scopes.get(i).get(name.lexeme).used = true;
-        interpreter.resolve(expr, scopes.size() - 1 - i);
+        interpreter.resolve(expr, scopes.size() - 1 - i,
+            scopes.get(i).get(name.lexeme).slot);
         return;
       }
     }
