@@ -1,0 +1,8 @@
+var numbers = [1, 2, 3];
+print numbers[0];
+numbers[1] = 42;
+print numbers;
+print numbers.length;
+
+var nested = [["lox"], [true, nil]];
+print nested[0][0];

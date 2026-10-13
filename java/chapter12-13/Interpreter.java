@@ -424,6 +424,9 @@ class Interpreter implements Expr.Visitor<Object>,
       }
       return value;
     }
+    if (object instanceof List && expr.name.lexeme.equals("length")) {
+      return (double)((List<?>)object).size();
+    }
 
     throw new RuntimeError(expr.name,
         "Only instances have properties.");
@@ -439,6 +442,26 @@ class Interpreter implements Expr.Visitor<Object>,
   @Override
   public Object visitLiteralExpr(Expr.Literal expr) {
     return expr.value;
+  }
+
+  @Override
+  public Object visitListLiteralExpr(Expr.ListLiteral expr) {
+    List<Object> values = new ArrayList<>();
+    for (Expr element : expr.elements) values.add(evaluate(element));
+    return values;
+  }
+
+  @Override
+  public Object visitIndexExpr(Expr.Index expr) {
+    Object object = evaluate(expr.object);
+    Object index = evaluate(expr.index);
+    int position = listIndex(expr.bracket, index);
+    if (!(object instanceof List)) {
+      throw new RuntimeError(expr.bracket, "Only lists can be indexed.");
+    }
+    List<?> list = (List<?>)object;
+    checkListBounds(expr.bracket, position, list.size());
+    return list.get(position);
   }
 //< visit-literal
 //> Control Flow visit-logical
@@ -468,6 +491,34 @@ class Interpreter implements Expr.Visitor<Object>,
     Object value = evaluate(expr.value);
     ((LoxInstance)object).set(expr.name, value);
     return value;
+  }
+
+  @Override
+  public Object visitIndexSetExpr(Expr.IndexSet expr) {
+    Object object = evaluate(expr.object);
+    Object index = evaluate(expr.index);
+    int position = listIndex(expr.bracket, index);
+    if (!(object instanceof List)) {
+      throw new RuntimeError(expr.bracket, "Only lists can be indexed.");
+    }
+    List<Object> list = (List<Object>)object;
+    checkListBounds(expr.bracket, position, list.size());
+    Object value = evaluate(expr.value);
+    list.set(position, value);
+    return value;
+  }
+
+  private int listIndex(Token token, Object index) {
+    if (!(index instanceof Double) || ((Double)index) % 1 != 0) {
+      throw new RuntimeError(token, "List index must be an integer.");
+    }
+    return ((Double)index).intValue();
+  }
+
+  private void checkListBounds(Token token, int index, int size) {
+    if (index < 0 || index >= size) {
+      throw new RuntimeError(token, "List index out of bounds.");
+    }
   }
 //< Classes interpreter-visit-set
 //> Inheritance interpreter-visit-super
@@ -580,6 +631,16 @@ class Interpreter implements Expr.Visitor<Object>,
         text = text.substring(0, text.length() - 2);
       }
       return text;
+    }
+
+    if (object instanceof List) {
+      List<?> list = (List<?>)object;
+      StringBuilder result = new StringBuilder("[");
+      for (int i = 0; i < list.size(); i++) {
+        if (i > 0) result.append(", ");
+        result.append(stringify(list.get(i)));
+      }
+      return result.append("]").toString();
     }
 
     return object.toString();

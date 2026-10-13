@@ -313,6 +313,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitLiteralExpr(Expr.Literal expr) {
     return null;
   }
+
+  @Override
+  public Void visitListLiteralExpr(Expr.ListLiteral expr) {
+    for (Expr element : expr.elements) resolve(element);
+    return null;
+  }
+
+  @Override
+  public Void visitIndexExpr(Expr.Index expr) {
+    resolve(expr.object);
+    resolve(expr.index);
+    return null;
+  }
 //< visit-literal-expr
 //> visit-logical-expr
   @Override
@@ -327,6 +340,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitSetExpr(Expr.Set expr) {
     resolve(expr.value);
     resolve(expr.object);
+    return null;
+  }
+
+  @Override
+  public Void visitIndexSetExpr(Expr.IndexSet expr) {
+    resolve(expr.object);
+    resolve(expr.index);
+    resolve(expr.value);
     return null;
   }
 //< Classes resolver-visit-set

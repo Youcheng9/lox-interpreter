@@ -398,6 +398,9 @@ class Parser {
       } else if (expr instanceof Expr.Get) {
         Expr.Get get = (Expr.Get)expr;
         return new Expr.Set(get.object, get.name, value);
+      } else if (expr instanceof Expr.Index) {
+        Expr.Index index = (Expr.Index)expr;
+        return new Expr.IndexSet(index.object, index.bracket, index.index, value);
 //< Classes assign-set
       }
 
@@ -533,6 +536,11 @@ class Parser {
         Token name = consume(IDENTIFIER,
             "Expect property name after '.'.");
         expr = new Expr.Get(expr, name);
+      } else if (match(LEFT_BRACKET)) {
+        Token bracket = previous();
+        Expr index = expression();
+        consume(RIGHT_BRACKET, "Expect ']' after list index.");
+        expr = new Expr.Index(expr, bracket, index);
 //< Classes parse-property
       } else {
         break;
@@ -551,6 +559,17 @@ class Parser {
 
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
+    }
+
+    if (match(LEFT_BRACKET)) {
+      List<Expr> elements = new ArrayList<>();
+      if (!check(RIGHT_BRACKET)) {
+        do {
+          elements.add(expression());
+        } while (match(COMMA));
+      }
+      consume(RIGHT_BRACKET, "Expect ']' after list elements.");
+      return new Expr.ListLiteral(elements);
     }
 
     if (match(INNER)) {

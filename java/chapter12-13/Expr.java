@@ -14,9 +14,12 @@ abstract class Expr {
     R visitGetExpr(Get expr);
     R visitGroupingExpr(Grouping expr);
     R visitInnerExpr(Inner expr);
+    R visitIndexExpr(Index expr);
     R visitLiteralExpr(Literal expr);
+    R visitListLiteralExpr(ListLiteral expr);
     R visitLogicalExpr(Logical expr);
     R visitSetExpr(Set expr);
+    R visitIndexSetExpr(IndexSet expr);
     R visitSuperExpr(Super expr);
     R visitThisExpr(This expr);
     R visitUnaryExpr(Unary expr);
@@ -43,6 +46,16 @@ abstract class Expr {
     Inner(Token keyword) { this.keyword = keyword; }
     @Override <R> R accept(Visitor<R> visitor) { return visitor.visitInnerExpr(this); }
     final Token keyword;
+  }
+
+  static class Index extends Expr {
+    Index(Expr object, Token bracket, Expr index) {
+      this.object = object; this.bracket = bracket; this.index = index;
+    }
+    @Override <R> R accept(Visitor<R> visitor) { return visitor.visitIndexExpr(this); }
+    final Expr object;
+    final Token bracket;
+    final Expr index;
   }
 //> expr-assign
   static class Assign extends Expr {
@@ -140,6 +153,12 @@ abstract class Expr {
 
     final Object value;
   }
+
+  static class ListLiteral extends Expr {
+    ListLiteral(List<Expr> elements) { this.elements = elements; }
+    @Override <R> R accept(Visitor<R> visitor) { return visitor.visitListLiteralExpr(this); }
+    final List<Expr> elements;
+  }
 //< expr-literal
 //> expr-logical
   static class Logical extends Expr {
@@ -174,6 +193,18 @@ abstract class Expr {
 
     final Expr object;
     final Token name;
+    final Expr value;
+  }
+
+  static class IndexSet extends Expr {
+    IndexSet(Expr object, Token bracket, Expr index, Expr value) {
+      this.object = object; this.bracket = bracket;
+      this.index = index; this.value = value;
+    }
+    @Override <R> R accept(Visitor<R> visitor) { return visitor.visitIndexSetExpr(this); }
+    final Expr object;
+    final Token bracket;
+    final Expr index;
     final Expr value;
   }
 //< expr-set

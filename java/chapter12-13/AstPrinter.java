@@ -183,6 +183,21 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     if (expr.value == null) return "nil";
     return expr.value.toString();
   }
+
+  @Override
+  public String visitListLiteralExpr(Expr.ListLiteral expr) {
+    return parenthesize("list", expr.elements.toArray(new Expr[0]));
+  }
+
+  @Override
+  public String visitIndexExpr(Expr.Index expr) {
+    return parenthesize2("[]", expr.object, expr.index);
+  }
+
+  @Override
+  public String visitIndexSetExpr(Expr.IndexSet expr) {
+    return parenthesize2("[]=", expr.object, expr.index, expr.value);
+  }
 //> Control Flow omit
 
   @Override
