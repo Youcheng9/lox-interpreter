@@ -53,14 +53,20 @@ abstract class Stmt {
     }
     Function(Token name, List<Token> params, List<Stmt> body,
              boolean classMethod) {
+      this(name, params, body, classMethod, false);
+    }
+    Function(Token name, List<Token> params, List<Stmt> body,
+             boolean classMethod, boolean getter) {
       this.name = name; this.params = params; this.body = body;
       this.classMethod = classMethod;
+      this.getter = getter;
     }
     @Override <R> R accept(Visitor<R> visitor) { return visitor.visitFunctionStmt(this); }
     final Token name;
     final List<Token> params;
     final List<Stmt> body;
     final boolean classMethod;
+    final boolean getter;
   }
 
   static class If extends Stmt {

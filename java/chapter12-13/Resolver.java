@@ -299,6 +299,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     resolve(expr.expression);
     return null;
   }
+
+  @Override
+  public Void visitInnerExpr(Expr.Inner expr) {
+    if (currentClass == ClassType.NONE) {
+      Lox.error(expr.keyword, "Can't use 'inner' outside of a class.");
+    }
+    return null;
+  }
 //< visit-grouping-expr
 //> visit-literal-expr
   @Override

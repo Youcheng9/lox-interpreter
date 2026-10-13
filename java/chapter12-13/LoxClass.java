@@ -2,6 +2,7 @@
 package com.craftinginterpreters.lox;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 /* Classes lox-class < Classes lox-class-callable
@@ -55,16 +56,26 @@ class LoxClass extends LoxInstance implements LoxCallable {
 //< lox-class-methods
 //> lox-class-find-method
   LoxFunction findMethod(String name) {
+    if (superclass != null) {
+      LoxFunction method = superclass.findMethod(name);
+      if (method != null) return method;
+    }
     if (methods.containsKey(name)) {
       return methods.get(name);
     }
+    return null;
+  }
 
-//> Inheritance find-method-recurse-superclass
-    if (superclass != null) {
-      return superclass.findMethod(name);
+  LoxFunction findMethodBelow(LoxClass owner, String name) {
+    List<LoxClass> classes = new ArrayList<>();
+    for (LoxClass klass = this; klass != null && klass != owner;
+         klass = klass.superclass) {
+      classes.add(klass);
     }
-
-//< Inheritance find-method-recurse-superclass
+    for (int i = classes.size() - 1; i >= 0; i--) {
+      LoxFunction method = classes.get(i).methods.get(name);
+      if (method != null) return method;
+    }
     return null;
   }
 //< lox-class-find-method

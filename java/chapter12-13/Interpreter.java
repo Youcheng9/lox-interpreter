@@ -20,6 +20,7 @@ class Interpreter implements Expr.Visitor<Object> {
 //> Statements and State interpreter
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
+  LoxFunction currentFunction;
   private static class BreakException extends RuntimeException {
     BreakException() {
       super(null, null, false, false);
@@ -169,6 +170,7 @@ class Interpreter implements Expr.Visitor<Object>,
 //> Inheritance interpreter-construct-class
     LoxClass klass = new LoxClass(stmt.name.lexeme,
         (LoxClass)superclass, methods, classMethods);
+    for (LoxFunction method : methods.values()) method.setOwner(klass);
 //> end-superclass-environment
 
     if (superclass != null) {
@@ -397,13 +399,30 @@ class Interpreter implements Expr.Visitor<Object>,
   public Object visitFunctionExpr(Expr.Function expr) {
     return new LoxFunction(expr, environment);
   }
+
+  @Override
+  public Object visitInnerExpr(Expr.Inner expr) {
+    if (currentFunction == null || currentFunction.owner() == null ||
+        currentFunction.receiver() == null) {
+      throw new RuntimeError(expr.keyword,
+          "Can't use 'inner' outside of a method.");
+    }
+    LoxFunction method = currentFunction.receiver().klass.findMethodBelow(
+        currentFunction.owner(), currentFunction.name());
+    if (method == null) return null;
+    return method.bind(currentFunction.receiver()).call(this, new ArrayList<>());
+  }
 //< Functions visit-call
 //> Classes interpreter-visit-get
   @Override
   public Object visitGetExpr(Expr.Get expr) {
     Object object = evaluate(expr.object);
     if (object instanceof LoxInstance) {
-      return ((LoxInstance) object).get(expr.name);
+      Object value = ((LoxInstance) object).get(expr.name);
+      if (value instanceof LoxFunction && ((LoxFunction) value).isGetter()) {
+        return ((LoxFunction) value).call(this, new ArrayList<>());
+      }
+      return value;
     }
 
     throw new RuntimeError(expr.name,

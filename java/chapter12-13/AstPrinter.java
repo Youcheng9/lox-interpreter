@@ -174,6 +174,11 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
   }
 
   @Override
+  public String visitInnerExpr(Expr.Inner expr) {
+    return "inner";
+  }
+
+  @Override
   public String visitLiteralExpr(Expr.Literal expr) {
     if (expr.value == null) return "nil";
     return expr.value.toString();

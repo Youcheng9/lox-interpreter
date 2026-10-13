@@ -8,6 +8,8 @@ class LoxFunction implements LoxCallable {
   private final Expr.Function expressionDeclaration;
 //> closure-field
   private final Environment closure;
+  private LoxClass owner;
+  private LoxInstance receiver;
   
 //< closure-field
 /* Functions lox-function < Functions closure-constructor
@@ -44,10 +46,22 @@ class LoxFunction implements LoxCallable {
     return new LoxFunction(declaration, environment);
 */
 //> lox-function-bind-with-initializer
-    return new LoxFunction(declaration, environment,
-                           isInitializer);
+    LoxFunction function = new LoxFunction(declaration, environment,
+                                            isInitializer);
+    function.owner = owner;
+    function.receiver = instance;
+    return function;
 //< lox-function-bind-with-initializer
   }
+
+  boolean isGetter() {
+    return declaration != null && declaration.getter;
+  }
+
+  void setOwner(LoxClass owner) { this.owner = owner; }
+  LoxClass owner() { return owner; }
+  LoxInstance receiver() { return receiver; }
+  String name() { return declaration.name.lexeme; }
 //< Classes bind-instance
 //> function-to-string
   @Override
@@ -87,6 +101,8 @@ class LoxFunction implements LoxCallable {
     interpreter.executeBlock(declaration.body, environment);
 */
 //> catch-return
+    LoxFunction previous = interpreter.currentFunction;
+    interpreter.currentFunction = this;
     try {
       interpreter.executeBlock(expressionDeclaration != null
           ? expressionDeclaration.body : declaration.body, environment);
@@ -96,6 +112,8 @@ class LoxFunction implements LoxCallable {
 
 //< Classes early-return-this
       return returnValue.value;
+    } finally {
+      interpreter.currentFunction = previous;
     }
 //< catch-return
 //> Classes return-this

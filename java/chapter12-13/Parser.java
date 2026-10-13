@@ -128,9 +128,9 @@ class Parser {
     List<Stmt.Function> classMethods = new ArrayList<>();
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
       if (match(CLASS)) {
-        classMethods.add(function("class method", true));
+        classMethods.add(method("class method", true));
       } else {
-        methods.add(function("method", false));
+        methods.add(method("method", false));
       }
     }
 
@@ -343,6 +343,28 @@ class Parser {
     return new Stmt.Function(name, parameters, body, classMethod);
 //< parse-body
   }
+
+  private Stmt.Function method(String kind, boolean classMethod) {
+    Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+    if (!match(LEFT_PAREN)) {
+      consume(LEFT_BRACE, "Expect '(' or '{' after " + kind + " name.");
+      return new Stmt.Function(name, new ArrayList<>(), block(),
+          classMethod, true);
+    }
+
+    List<Token> parameters = new ArrayList<>();
+    if (!check(RIGHT_PAREN)) {
+      do {
+        if (parameters.size() >= 255) {
+          error(peek(), "Can't have more than 255 parameters.");
+        }
+        parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+      } while (match(COMMA));
+    }
+    consume(RIGHT_PAREN, "Expect ')' after parameters.");
+    consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+    return new Stmt.Function(name, parameters, block(), classMethod, false);
+  }
 //< Functions parse-function
 //> Statements and State block
   private List<Stmt> block() {
@@ -530,16 +552,13 @@ class Parser {
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
     }
-//> Inheritance parse-super
 
-    if (match(SUPER)) {
+    if (match(INNER)) {
       Token keyword = previous();
-      consume(DOT, "Expect '.' after 'super'.");
-      Token method = consume(IDENTIFIER,
-          "Expect superclass method name.");
-      return new Expr.Super(keyword, method);
+      consume(LEFT_PAREN, "Expect '(' after 'inner'.");
+      consume(RIGHT_PAREN, "Expect ')' after 'inner('.");
+      return new Expr.Inner(keyword);
     }
-//< Inheritance parse-super
 //> Classes parse-this
 
     if (match(THIS)) return new Expr.This(previous());
