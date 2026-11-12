@@ -1,0 +1,5 @@
+// Each line demonstrates a runtime error handled by the native boundary.
+// Uncomment one at a time.
+// sqrt("not a number");
+// sqrt(-1);
+// clock(1);

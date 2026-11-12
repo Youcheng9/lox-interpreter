@@ -1,0 +1,10 @@
+// Native calls include arity validation and a bool success check.
+var start = clock();
+var total = 0;
+var i = 1;
+while (i < 2000000) {
+  total = total + sqrt(i);
+  i = i + 1;
+}
+print total > 0;
+print clock() - start;

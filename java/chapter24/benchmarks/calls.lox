@@ -1,0 +1,14 @@
+// Repeated non-recursive calls stress call-frame transitions.
+fun increment(value) {
+  return value + 1;
+}
+
+var start = clock();
+var value = 0;
+var i = 0;
+while (i < 2000000) {
+  value = increment(value);
+  i = i + 1;
+}
+print value == 2000000;
+print clock() - start;

@@ -1,0 +1,10 @@
+// A native-call-only workload for comparing the validation convention.
+var start = clock();
+var i = 0;
+var last = 0;
+while (i < 2000000) {
+  last = clock();
+  i = i + 1;
+}
+print last >= start;
+print clock() - start;
