@@ -1,0 +1,29 @@
+fun add(a, b) {
+  return a + b;
+}
+print add(2, 3);
+
+class Counter {
+  init(value) {
+    this.value = value;
+  }
+
+  increment(amount) {
+    this.value = this.value + amount;
+    return this.value;
+  }
+}
+var counter = Counter(10);
+print counter.increment(5);
+
+fun makeCounter() {
+  var value = 20;
+  fun increment(amount) {
+    value = value + amount;
+    return value;
+  }
+  return increment;
+}
+var closure = makeCounter();
+print closure(7);
+print closure(8);

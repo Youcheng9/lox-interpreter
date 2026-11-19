@@ -1,0 +1,11 @@
+fun makeCounter() {
+  var value = 20;
+  fun increment(amount) {
+    value = value + amount;
+    return value;
+  }
+  return increment;
+}
+var closure = makeCounter();
+print closure(7);
+print closure(8);

@@ -1,0 +1,13 @@
+// Repeatedly executes a function declaration that has no upvalues.
+for (var i = 0; i < 10; i = i + 1) {
+  var start = clock();
+  var sum = 0;
+  for (var j = 0; j < 100000; j = j + 1) {
+    fun add(a, b) {
+      return a + b;
+    }
+    sum = sum + add(j, j);
+  }
+  print sum;
+  print clock() - start;
+}
