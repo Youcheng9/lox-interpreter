@@ -1,0 +1,30 @@
+// A vector is a closure that dispatches method names to other closures.
+fun vector(x, y) {
+  fun getX() {
+    return x;
+  }
+
+  fun getY() {
+    return y;
+  }
+
+  fun add(other) {
+    return vector(x + other("x"), y + other("y"));
+  }
+
+  fun method(name) {
+    if (name == "x") return getX();
+    if (name == "y") return getY();
+    if (name == "add") return add;
+    return nil;
+  }
+
+  return method;
+}
+
+var first = vector(1, 2);
+var second = vector(3, 4);
+var sum = first("add")(second);
+
+print sum("x");
+print sum("y");
